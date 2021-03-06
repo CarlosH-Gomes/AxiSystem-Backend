@@ -13,6 +13,6 @@ consign()
     .then('./config/router.js')
     .into(app) //injeta as dependências
 
-app.listen(3000, ()=> {
+app.listen(process.env.PORT || 3000, ()=> {
     console.log("Backend executando...")
 })
