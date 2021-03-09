@@ -30,7 +30,7 @@ module.exports = app => {
                 notExistsOrError(userFromDB, 'Usuário ja cadastrador')
             }
         } catch(msg) {
-            return res.status(400).send(res.json(msg))
+            return res.status(400).send(msg)
         }
 
         user.password = encrtptPassword(user.password) //criptografa a senha
