@@ -1,12 +1,7 @@
 exports.up = function(knex) {
     return knex.schema.createTable('dadosensor', table =>{
         table.increments('id').primary();
-        table.float('ax').notNullable();
-        table.float('ay').notNullable();
-        table.float('az').notNullable();
-        table.float('gx').notNullable();
-        table.float('gy').notNullable();
-        table.float('gz').notNullable();
+        table.boolean('sinalQueda').notNull().defaultTo(false);
         table.integer('usuarioId').unsigned().notNull();
         table.foreign('usuarioId').references('id').inTable('users');
         table.integer('sensorId').unsigned().notNull();

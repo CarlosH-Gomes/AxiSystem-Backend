@@ -22,6 +22,15 @@ module.exports = app => {
         <h3>Necessário o envio do token de autenticação no cabeçalho da requisição</h3>
         <br>
         <br>
+        <h2>/medicamentos</h2>
+        <h3>GET</h3>
+        <h3>Retorna os registros de medições</h3>
+        <h3>POST</h3>
+        <p>JSON: { "numCompartimento": float, "nomeMedicamento": float, "horaToma": float</p>
+        <p>"minToma": float, "periodoToma": float, "qtdDias": float, "aindaToma": bool}</p>
+        <h3>Necessário o envio do token de autenticação no cabeçalho da requisição</h3>
+        <br>
+        <br>
         <h2>/esquecisenha</h2>
         <h3>POST</h3>
         <p>JSON: {email: string}</p>

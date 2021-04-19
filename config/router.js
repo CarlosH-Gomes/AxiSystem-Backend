@@ -25,7 +25,22 @@ module.exports = app => {
 
     app.route('/dados/:id')
         .all(app.config.passport.authenticate())
+        //.put(app.api.dadosSensor.saveStatus) 
         .get(app.api.dadosSensor.getByIdRegistersDate)
+
+     app.route('/medicamentos')
+        .post(app.config.passport.authenticate())
+        .get(app.api.controleMedicamento.get)
+        .post(app.api.controleMedicamento.save);
+    
+    app.route('/medicamentos/:id')//alterar 
+        .all(app.config.passport.authenticate())
+        .put(app.api.controleMedicamento.save) 
+        .get(app.api.controleMedicamento.getById)
+        
+    app.route('/medicamentos/user/:id')
+        .all(app.config.passport.authenticate())
+        .get(app.api.controleMedicamento.getByIdUser)
 
     app.route('/esquecisenha')
         .post(app.api.user.forgetPassword)

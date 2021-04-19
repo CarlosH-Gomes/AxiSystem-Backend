@@ -80,7 +80,7 @@ module.exports = app => {
           const text = `Sua senha gerada aleatóriamente é '${password}', você pode altera-lá posteriormente no aplicativo`
     
           const mailOptions = {
-            from: 'chrqgms@gmail.com',
+            from: 'axisystem@gmail.com',
             to: email,
             subject: 'Recuperação de Senha',
             text,

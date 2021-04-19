@@ -1,6 +1,6 @@
 const authSecret = process.env.AUTH_SECRET
-const jwt = require('jwt-simple')
-const queries = require('./queries')
+const jwt = require('jwt-simple') //codificador 
+const queries = require('./queries') 
 
 module.exports = app => {
 
@@ -8,17 +8,13 @@ module.exports = app => {
     
     const save = async (req, res) => {
         let dados = { ...req.body };
+        if(req.params.id) dados.id = req.params.id
         let token = req.headers.authorization;
         token = token.replace("bearer ", "");
         var decoded = jwt.decode(token, authSecret);
 
         try {
-            existsOrError(dados.ax, "Informe ax");
-            existsOrError(dados.ay, "Informe ay");
-            existsOrError(dados.az, "Informe az");
-            existsOrError(dados.gx, "Informe gx");
-            existsOrError(dados.gy, "Informe gy");
-            existsOrError(dados.gz, "Informe gz");
+            existsOrError(dados.sinalQueda, "Informe se caiu");
             existsOrError(dados.mac, "Informe o MAC Adress");
         } catch (msg) {
             return res.status(400).send(msg);
@@ -44,9 +40,9 @@ module.exports = app => {
             sensorId = sensor.id;
         }
 
-        delete dados.mac;
+        delete dados.mac; //apaga o mac para não salvar no banco
         dados = {
-            ...dados, sensorId, usuarioId: decoded.id, created_At: new Date()
+            ...dados, sensorId, usuarioId: decoded.id, created_At: new Date() //grava as novas informações
         }
 
         if (dados) {
@@ -57,6 +53,37 @@ module.exports = app => {
             res.status(400).send("Não foi possivel gravar");
         }
     }
+
+    // const saveStatus = async (req, res) => {
+    //     let dados = { ...req.body };
+    //     if(req.params.id) dados.id = req.params.id
+    //     let token = req.headers.authorization;
+    //     token = token.replace("bearer ", "");
+    //     var decoded = jwt.decode(token, authSecret);
+
+      
+    //     let sensor = await app.db('dadosensor').where({ usuarioId: dados.id }).first();
+    //     dados.id = sensor.id;
+
+    //     try {
+    //         existsOrError(dados.sinalQueda, "Informe se caiu");
+            
+    //     } catch (msg) {
+    //         return res.status(400).send(msg);
+    //     }
+
+    //     if (dados.id) {
+    //         app.db('dadosensor')
+    //             .update(dados)
+    //             .where({id: dados.id})
+    //             .then( _ => res.status(204).send()) //deu tudo certo
+    //             .catch(err => res.status(500).send(err)) // erro do lado do servidor
+    //     } else {
+    //         res.status(400).send("Não foi possivel alterar");
+    //     }
+
+      
+    // }
 
     const get = (req, res) => {
 
