@@ -69,6 +69,7 @@ module.exports = app => {
             .where({sensorId: req.params.id})
             .then(dados => res.json(dados))    
             .catch(err => res.status(500).send(err));
+
     }
 
     const getByIdRegistersDate = async (req, res) => {
@@ -81,6 +82,8 @@ module.exports = app => {
 
         res.status(200).send(categories[0])
     }
+
+    
 
     return { save, getById, getByIdRegistersDate }
 

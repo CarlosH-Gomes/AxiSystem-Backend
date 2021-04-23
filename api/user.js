@@ -69,18 +69,22 @@ module.exports = app => {
     
         const enviarEmail = () => {
           const  transport = nodemailer.createTransport({
-            host: "smtp.mailtrap.io",
-            port: 2525,
+            service: 'gmail',
+            secure : false,
             auth: {
               user: process.env.MAIL_USER,
               pass: process.env.MAIL_PASS
-            }
+            },
+            tls: {
+              // do not fail on invalid certs
+              rejectUnauthorized: false
+          }
           });
     
           const text = `Sua senha gerada aleatóriamente é '${password}', você pode altera-lá posteriormente no aplicativo`
     
           const mailOptions = {
-            from: 'axisystem@gmail.com',
+            from: 'axisystem2020@gmail.com',
             to: email,
             subject: 'Recuperação de Senha',
             text,
@@ -89,6 +93,7 @@ module.exports = app => {
     
           transport.sendMail(mailOptions, function (error, info) {
             if (error) {
+              console.log(error)
               return res.status(400).send(error)
             } else {
               return res.status(200).send("Senha modificada, cheque seu e-mail");
