@@ -59,7 +59,7 @@ module.exports = app => {
 
     
     const getById = (req, res) => {
-        //retorna usuario escolhido
+        
        app.db('medicamentos')
             .select('numCompartimento','nomeMedicamento', 'horaToma','minToma', 'periodoToma', 'qtdDias', 'aindaToma')
             .where({id: req.params.id})
@@ -69,13 +69,9 @@ module.exports = app => {
     }
 
     const getByIdUser = (req, res) => {
-        
-      
-        //retorna usuario escolhido
        app.db('medicamentos')
            .select('id', 'numCompartimento', 'nomeMedicamento', 'aindaToma')
             .where({usuarioId: req.params.id})
-            .first()
            .then(user => res.json(user)) // deu certo, mando um json, se precisar de um processamento/tratamento, usar o map
            .catch(err => res.status(500).send(err))
     }

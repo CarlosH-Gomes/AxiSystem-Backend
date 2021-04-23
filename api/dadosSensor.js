@@ -13,82 +13,61 @@ module.exports = app => {
         token = token.replace("bearer ", "");
         var decoded = jwt.decode(token, authSecret);
 
-        try {
-            existsOrError(dados.sinalQueda, "Informe se caiu");
-            existsOrError(dados.mac, "Informe o MAC Adress");
-        } catch (msg) {
-            return res.status(400).send(msg);
-        }
-
-        let sensor = await app.db('sensores').where({ mac: dados.mac }).first();
-
-        let sensorId = null;
-
-        if (!sensor) { //cadastra o sensor se não tiver
-            insereSensor = async () => {
-                const mpuId = app.db('sensores').insert({ mac: dados.mac })
-                    .catch(err => { throw err });
-                return mpuId
-            }
-
+        if(dados.id){
             try {
-                sensorId = await insereSensor();
-            } catch (err) {
-                if (err.errno === 1062) return res.status(500).send("Sensor já cadastrado");
+                existsOrError(dados.sinalQueda, "Informe se caiu");
+                existsOrError(dados.mac, "Informe o MAC Adress");
+            } catch (msg) {
+                return res.status(400).send(msg);
             }
-        } else {
-            sensorId = sensor.id;
-        }
+            delete dados.mac;
+            app.db('dadosensor')
+                .update(dados)
+                .where({id: dados.id})
+                .then( _ => res.status(204).send()) //deu tudo certo
+                .catch(err => res.status(500).send(err)) // erro do lado do servidor
+        }else{
+            try {
+                existsOrError(dados.sinalQueda, "Informe se caiu");
+                existsOrError(dados.mac, "Informe o MAC Adress");
+            } catch (msg) {
+                return res.status(400).send(msg);
+            }
 
-        delete dados.mac; //apaga o mac para não salvar no banco
-        dados = {
-            ...dados, sensorId, usuarioId: decoded.id, created_At: new Date() //grava as novas informações
-        }
+            let sensor = await app.db('sensores').where({ mac: dados.mac }).first();
 
-        if (dados) {
-            app.db('dadosensor').insert(dados)
-                .then(_ => res.status(200).send(dados))
-                .catch(err => res.status(500).send(err));
-        } else {
-            res.status(400).send("Não foi possivel gravar");
+            let sensorId = null;
+
+            if (!sensor) { 
+            res.status(400).send("Sensor ainda não foi cadastrado")
+            } else {
+                sensorId = sensor.id;
+            }
+
+            delete dados.mac; //apaga o mac para não salvar no banco
+            dados = {
+                ...dados, sensorId, usuarioId: decoded.id, created_At: new Date() //grava as novas informações
+            }
+
+            if (dados) {
+                app.db('dadosensor').insert(dados)
+                    .then(_ => res.status(200).send(dados))
+                    .catch(err => res.status(500).send(err));
+            } else {
+                res.status(400).send("Não foi possivel gravar");
+            }
         }
     }
 
-    // const saveStatus = async (req, res) => {
-    //     let dados = { ...req.body };
-    //     if(req.params.id) dados.id = req.params.id
-    //     let token = req.headers.authorization;
-    //     token = token.replace("bearer ", "");
-    //     var decoded = jwt.decode(token, authSecret);
+    
 
-      
-    //     let sensor = await app.db('dadosensor').where({ usuarioId: dados.id }).first();
-    //     dados.id = sensor.id;
 
-    //     try {
-    //         existsOrError(dados.sinalQueda, "Informe se caiu");
-            
-    //     } catch (msg) {
-    //         return res.status(400).send(msg);
-    //     }
-
-    //     if (dados.id) {
-    //         app.db('dadosensor')
-    //             .update(dados)
-    //             .where({id: dados.id})
-    //             .then( _ => res.status(204).send()) //deu tudo certo
-    //             .catch(err => res.status(500).send(err)) // erro do lado do servidor
-    //     } else {
-    //         res.status(400).send("Não foi possivel alterar");
-    //     }
-
-      
-    // }
-
-    const get = (req, res) => {
-
+    const getById = (req, res) => {
+        
         app.db('dadosensor')
-            .then(dados => res.json(dados))
+            .select('sinalQueda','created_At','sensorId')
+            .where({sensorId: req.params.id})
+            .then(dados => res.json(dados))    
             .catch(err => res.status(500).send(err));
     }
 
@@ -103,6 +82,6 @@ module.exports = app => {
         res.status(200).send(categories[0])
     }
 
-    return { save, get, getByIdRegistersDate }
+    return { save, getById, getByIdRegistersDate }
 
 }

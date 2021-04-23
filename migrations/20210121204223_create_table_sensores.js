@@ -3,6 +3,8 @@ exports.up = function(knex) {
         table.increments('id').primary();
         table.string('mac').notNull().unique();
         table.datetime('created_At').defaultTo(knex.fn.now());
+        table.integer('usuarioId').unsigned().notNull();
+        table.foreign('usuarioId').references('id').inTable('users');
     })
   };
   
