@@ -26,7 +26,7 @@ module.exports = app => {
             }
             app.db('dadosensor')
                 .update(dados)
-                .where({id: dados.id})
+                .where({d: dados.id})
                 .then( _ => res.status(204).send()) //deu tudo certo
                 .catch(err => res.status(500).send(err)) // erro do lado do servidor
         }else{
