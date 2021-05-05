@@ -21,6 +21,9 @@ module.exports = app => {
                 return res.status(400).send(msg);
             }
             delete dados.mac;
+            dados = {
+                ...dados,  created_At: new Date() //grava as novas informações
+            }
             app.db('dadosensor')
                 .update(dados)
                 .where({id: dados.id})
