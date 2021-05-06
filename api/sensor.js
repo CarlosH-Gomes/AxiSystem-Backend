@@ -22,6 +22,9 @@ module.exports = app => {
                 } catch (msg) {
                     return res.status(400).send(msg);
                 }
+                dados = {
+                    ...dados,  created_At: new Date() //grava as novas informações
+                }
                 app.db('sensores')
                     .update(dados)
                     .where({id: req.params.id})
