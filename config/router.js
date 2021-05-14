@@ -29,20 +29,21 @@ module.exports = app => {
         .put(app.api.sensor.save)//altera os dados do sensor, id do sensor
    
     app.route('/requisicaoSensor/:mac')
-        .post(app.config.passport.authenticate())
         .get(app.api.sensor.getByMac)//sensor checa se foi cadastrado
 
     app.route('/dados')
         .post(app.config.passport.authenticate())
-        .post(app.api.dadosSensor.save); 
+        .post(app.api.dadosSensor.save)
+        .put(app.api.dadosSensor.update); // rota que será usada pelo hardware
+        
     
     app.route('/dados/:id')
         .post(app.config.passport.authenticate())
-        .get(app.api.dadosSensor.getById) //id do sensor
-        .put(app.api.dadosSensor.save); // rota que será usada pelo hardware
+        .get(app.api.dadosSensor.getById); //id do sensor
+         
 
      app.route('/medicamentos')
-        .post(app.config.passport.authenticate())
+        .all(app.config.passport.authenticate())
         .get(app.api.controleMedicamento.get) //todos medicamentos da base de dados
         .post(app.api.controleMedicamento.save);//salva o medicamento
     

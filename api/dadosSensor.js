@@ -13,23 +13,7 @@ module.exports = app => {
         token = token.replace("bearer ", "");
         var decoded = jwt.decode(token, authSecret);
 
-        if(dados.id){
-            try {
-                existsOrError(dados.sinalQueda, "Informe se caiu");
-                existsOrError(dados.mac, "Informe o MAC Adress");
-            } catch (msg) {
-                return res.status(400).send(msg);
-            }
-            delete dados.mac;
-            dados = {
-                ...dados,  created_At: new Date() //grava as novas informações
-            }
-            app.db('dadosensor')
-                .update(dados)
-                .where({d: dados.id})
-                .then( _ => res.status(204).send()) //deu tudo certo
-                .catch(err => res.status(500).send(err)) // erro do lado do servidor
-        }else{
+        
             try {
                 existsOrError(dados.sinalQueda, "Informe se caiu");
                 existsOrError(dados.mac, "Informe o MAC Adress");
@@ -59,9 +43,42 @@ module.exports = app => {
             } else {
                 res.status(400).send("Não foi possivel gravar");
             }
-        }
+        
     }
 
+    const update = async (req, res) => {
+        let dados = { ...req.body };
+        
+       
+
+            try {
+                existsOrError(dados.sinalQueda, "Informe se caiu");
+                existsOrError(dados.mac, "Informe o MAC Adress");
+            } catch (msg) {
+                return res.status(400).send(msg);
+            }
+
+            let sensor = await app.db('sensores').where({ mac: dados.mac }).first();
+
+            let sensorId = null;
+
+            if (!sensor) { 
+                res.status(400).send("Sensor ainda não foi cadastrado")
+            } else {
+                sensorId = sensor.id;
+            }
+
+            delete dados.mac; //apaga o mac para não salvar no banco
+            dados = {
+                ...dados, sensorId,  created_At: new Date() //grava as novas informações
+            }
+            app.db('dadosensor')
+                .update(dados)
+                .where({sensorId: sensorId})
+                .then( _ => res.status(204).send()) //deu tudo certo
+                .catch(err => res.status(500).send(err)) // erro do lado do servidor
+        
+    }
     
 
 
@@ -88,6 +105,6 @@ module.exports = app => {
 
     
 
-    return { save, getById, getByIdRegistersDate }
+    return { save,update, getById, getByIdRegistersDate }
 
 }
