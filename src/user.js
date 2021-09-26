@@ -1,48 +1,67 @@
-/**
- * @swagger
- * components:
- *   schemas:
- *     Book:
- *       type: object
- *       required:
- *         - title
- *         - author
- *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the book
- *         title:
- *           type: string
- *           description: The book title
- *         author:
- *           type: string
- *           description: The book author
- *       example:
- *         id: d5fE_asz
- *         title: The New Turing Omnibus
- *         author: Alexander K. Dewdney
- */
+//ROTA USER
 
  /**
   * @swagger
   * tags:
-  *   name: Books
-  *   description: The books managing API
+  *   name: Usuario
+  *   description: Cadastro e Login da aplicação
   */
+
 
 /**
  * @swagger
- * /books:
- *   get:
- *     summary: Returns the list of all the books
- *     tags: [Books]
+ * components:
+ *   schemas:
+ *     signup:
+ *       type: object
+ *       required:
+ *         - email
+ *         - name
+ *         - password
+ *         - confirmPassword
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: email do usuario
+ *         name:
+ *           type: string
+ *           description: nome do usuario
+ *         password:
+ *           type: string
+ *           description: senha do usuario
+ *         confirmPassword:
+ *           type: string
+ *           description: confirma senha usuario
+ *       example:
+ *         email: 'exemplo@exemplo'
+ *         name: exemplo
+ *         password: senha
+ *         confirmPassword: senha
+ */
+
+
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Criar novo usuario
+ *     tags: [Usuario]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/signup'
  *     responses:
  *       200:
- *         description: The list of the books
+ *         description: Usuario cadastrado com sucesso
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Book'
+ *               $ref: '#/components/schemas/signup'
+ *       400:
+ *         description: Usuario ja cadastrado
+ *       500:
+ *         description: Erro no servidor
+ *      
  */

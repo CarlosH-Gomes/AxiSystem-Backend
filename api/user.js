@@ -40,12 +40,12 @@ module.exports = app => {
             app.db('users')
                 .update(user)
                 .where({id: user.id})
-                .then( _ => res.status(204).send('Sucesso')) //deu tudo certo
+                .then( _ => res.status(200).send('Sucesso')) //deu tudo certo
                 .catch(err => res.status(500).send(err)) // erro do lado do servidor
         }else{
             app.db('users')
                 .insert(user)
-                .then( _ => res.status(204).send('Sucesso')) //deu tudo certo
+                .then( _ => res.status(200).send('Sucesso')) //deu tudo certo
                 .catch(err => res.status(500).send(err)) // erro do lado do servidor
         }
     }
