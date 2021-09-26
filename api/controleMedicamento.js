@@ -13,14 +13,24 @@ module.exports = app => {
         token = token.replace("bearer ", "");
         var decoded = jwt.decode(token, authSecret);
 
-       
+        if(dados.numCompartimento > 4) return res.status(500).send("Compatirmento inválido")
 
+        if(dados.aindaToma == 1){
+            const consulta = await app.db('medicamentos')
+                                        .where({usuarioId: decoded.id, aindaToma: 1, numCompartimento: dados.numCompartimento })
+                                        .first();                  
+            
+            if(consulta) return res.status(400).send("Compartimento em uso")
+        }
+        
         if(dados.id){
             try {
                 existsOrError(dados.horaToma, "Informe a Hora");
             } catch (msg) {
                 return res.status(400).send(msg);
             }
+
+           
             app.db('medicamentos')
                 .update(dados)
                 .where({id: dados.id})
@@ -51,15 +61,18 @@ module.exports = app => {
     }
 
     const get = (req, res) => {
+        let token = req.headers.authorization;
+        token = token.replace("bearer ", "");
+        var decoded = jwt.decode(token, authSecret);
 
         app.db('medicamentos')
+            .where({usuarioId: decoded.id, aindaToma: 1})
             .then(dados => res.json(dados))
             .catch(err => res.status(500).send(err));
     }
 
     
     const getById = (req, res) => {
-        
        app.db('medicamentos')
             .select('numCompartimento','nomeMedicamento', 'horaToma','minToma', 'periodoToma', 'qtdDias', 'aindaToma')
             .where({id: req.params.id})
@@ -69,11 +82,14 @@ module.exports = app => {
     }
 
     const getByIdUser = (req, res) => {
-       app.db('medicamentos')
-           .select('id', 'numCompartimento', 'nomeMedicamento', 'aindaToma')
-            .where({usuarioId: req.params.id})
-           .then(user => res.json(user)) // deu certo, mando um json, se precisar de um processamento/tratamento, usar o map
-           .catch(err => res.status(500).send(err))
+        let token = req.headers.authorization;
+        token = token.replace("bearer ", "");
+        var decoded = jwt.decode(token, authSecret);
+
+        app.db('medicamentos')
+            .where({usuarioId: decoded.id})
+            .then(dados => res.json(dados))
+            .catch(err => res.status(500).send(err));
     }
 
     return { save, get, getById, getByIdUser }

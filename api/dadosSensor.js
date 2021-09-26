@@ -33,7 +33,7 @@ module.exports = app => {
 
             delete dados.mac; //apaga o mac para não salvar no banco
             dados = {
-                ...dados, sensorId, usuarioId: decoded.id, created_At: new Date() //grava as novas informações
+                ...dados, sensorId,  created_At: new Date() //grava as novas informações
             }
 
             if (dados) {
@@ -83,7 +83,6 @@ module.exports = app => {
 
 
     const getById = (req, res) => {
-        
         app.db('dadosensor')
             .select('sinalQueda','created_At','sensorId')
             .where({sensorId: req.params.id})

@@ -1,12 +1,19 @@
 const admin = require('./admin')
 
 module.exports = app => {
+
     app.post('/signup', app.api.user.save)
     app.post('/signin',  app.api.auth.signin)
     app.post('/validateToken',  app.api.auth.validateToken)
     
     app.route('/')
         .get(app.api.api.routes);
+    
+    app.route('/downloadCaixaMedicamento')
+        .get(app.api.atualizaEsp8266.arquivoCaixaMedicamento);
+    
+    app.route('/downloadSistemaQueda')
+        .get(app.api.atualizaEsp8266.arquivoSistemaQueda);
 
     app.route('/users')
         .all(app.config.passport.authenticate())
@@ -19,17 +26,16 @@ module.exports = app => {
         .get(app.api.user.getById)
 
     app.route('/sensor')
-        .post(app.config.passport.authenticate())
+        .all(app.config.passport.authenticate())
         .post(app.api.sensor.save)//salva o sensor
-        .get(app.api.sensor.get)
+        .get(app.api.sensor.getByIdUser)//mostra sensores do usuario
     
     app.route('/sensor/:id')
         .post(app.config.passport.authenticate())
-        .get(app.api.sensor.getByIdUser) //passa id do usuario checar sensores cadastrados
         .put(app.api.sensor.save)//altera os dados do sensor, id do sensor
-   
-    app.route('/requisicaoSensor/:mac')
-        .get(app.api.sensor.getByMac)//sensor checa se foi cadastrado
+    
+    app.route('/sensorToken')
+        .get(app.api.sensor.get) //necessario passar ?mac=valor 
 
     app.route('/dados')
         .post(app.config.passport.authenticate())
@@ -38,13 +44,24 @@ module.exports = app => {
         
     
     app.route('/dados/:id')
-        .post(app.config.passport.authenticate())
+        .get(app.config.passport.authenticate())
         .get(app.api.dadosSensor.getById); //id do sensor
          
-
-     app.route('/medicamentos')
+    app.route('/caixaMedicamentos')
         .all(app.config.passport.authenticate())
-        .get(app.api.controleMedicamento.get) //todos medicamentos da base de dados
+        .post(app.api.caixaMedicamentos.save)//salva o sensor
+        .get(app.api.caixaMedicamentos.getByIdUser)//mostra sensores do usuario
+    
+    app.route('/caixaMedicamentos/:id')
+        .post(app.config.passport.authenticate())
+        .put(app.api.caixaMedicamentos.save)//altera os dados do sensor, id do sensor
+    
+    app.route('/caixaMedicamentosToken')
+        .get(app.api.caixaMedicamentos.get) //necessario passar ?mac=valor 
+
+    app.route('/medicamentos')
+        .all(app.config.passport.authenticate())
+        .get(app.api.controleMedicamento.getByIdUser) //todos medicamentos da base de dados
         .post(app.api.controleMedicamento.save);//salva o medicamento
     
     app.route('/medicamentos/:id')//id do medicamento
@@ -52,10 +69,10 @@ module.exports = app => {
         .put(app.api.controleMedicamento.save) // altera medicamentos
         .get(app.api.controleMedicamento.getById) // dados medicamento
         
-    app.route('/medicamentos/user/:id')
-        .all(app.config.passport.authenticate())
-        .get(app.api.controleMedicamento.getByIdUser) //select com todo medicameno usuario
+    app.route('/medicamentosEnable')
+        .get(app.config.passport.authenticate())
+        .get(app.api.controleMedicamento.get) //select com todo medicameno usuario
 
-    app.route('/esquecisenha')
+    app.route('/forgotPassword')
         .post(app.api.user.forgetPassword)
 }
