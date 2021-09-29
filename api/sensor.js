@@ -10,7 +10,7 @@ module.exports = app => {
         let dados = { ...req.body };
         if(req.params.id) dados.id = req.params.id
         let token = req.headers.authorization;
-        token = token.replace("bearer ", "");
+        token = token.replace("Bearer ", "");
         var decoded = jwt.decode(token, authSecret);
 
         if(dados.id){
@@ -28,7 +28,7 @@ module.exports = app => {
                 app.db('sensores')
                     .update(dados)
                     .where({id: req.params.id})
-                    .then( _ => res.status(204).send()) //deu tudo certo
+                    .then( _ => res.status(200).send()) //deu tudo certo
                     .catch(err => res.status(500).send(err)) // erro do lado do servidor
             }else{
                 res.status(400).send("Sensor já foi cadastrado")
@@ -49,7 +49,7 @@ module.exports = app => {
             }
             if (!sensor) { //cadastra o sensor se não tiver
                 app.db('sensores').insert(dados)
-                    .then(_ => res.status(200).send(_))
+                    .then(_ => res.status(201).send(_))
                     .catch(err => res.status(500).send(err));
             } else{
                 res.status(400).send("Sensor já cadastrado");
@@ -60,37 +60,13 @@ module.exports = app => {
 
    
 
-    const get = async(req, res) => {
-        if(!req.query.mac) return res.status(400).send('informe o sensor!')
-        
-        const dados = await app.db('sensores')
-                    .where({mac: req.query.mac}).first()
-        
-        if(!dados) return res.status(400).send('Sensor não encontrado!')
-                    
-        const user = await app.db('users')
-                    .where({ id: dados.usuarioId })
-                    .first()
-
-        const payload = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            admin: user.admin,
-        }
-        res.json({
-            token: jwt.encode(payload, authSecret) //token para acesso que fica no front
-        })
-                
-    }
-
     const getByIdUser = (req, res) => {
         let token = req.headers.authorization;
-        token = token.replace("bearer ", "");
+        token = token.replace("Bearer ", "");
         var decoded = jwt.decode(token, authSecret);
       
        app.db('sensores')
-            .select('mac')
+            .select('mac', 'id')
             .where({usuarioId: decoded.id})
            .then(sensor => res.json(sensor)) // deu certo, mando um json, se precisar de um processamento/tratamento, usar o map
            .catch(err => res.status(500).send(err))
@@ -98,6 +74,6 @@ module.exports = app => {
     
     
 
-    return { save, get, getByIdUser }
+    return { save, getByIdUser }
 
 }

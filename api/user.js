@@ -45,7 +45,7 @@ module.exports = app => {
         }else{
             app.db('users')
                 .insert(user)
-                .then( _ => res.status(200).send('Sucesso')) //deu tudo certo
+                .then( _ => res.status(201).send('Sucesso')) //deu tudo certo
                 .catch(err => res.status(500).send(err)) // erro do lado do servidor
         }
     }

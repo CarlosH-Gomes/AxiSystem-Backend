@@ -8,12 +8,11 @@ module.exports = app => {
     
     const save = async (req, res) => {
         let dados = { ...req.body };
-        if(req.params.id) dados.id = req.params.id
-        let token = req.headers.authorization;
-        token = token.replace("bearer ", "");
-        var decoded = jwt.decode(token, authSecret);
 
-        
+        let sensor = await app.db('sensores').where({ mac: dados.mac }).first();
+
+        if(sensor)
+        {
             try {
                 existsOrError(dados.sinalQueda, "Informe se caiu");
                 existsOrError(dados.mac, "Informe o MAC Adress");
@@ -43,7 +42,10 @@ module.exports = app => {
             } else {
                 res.status(400).send("Não foi possivel gravar");
             }
-        
+        }else{
+            res.status(400).send("Não foi possivel gravar por que não foi cadastrado");
+        }
+
     }
 
     const update = async (req, res) => {
@@ -82,12 +84,25 @@ module.exports = app => {
     
 
 
-    const getById = (req, res) => {
-        app.db('dadosensor')
-            .select('sinalQueda','created_At','sensorId')
-            .where({sensorId: req.params.id})
-            .then(dados => res.json(dados))    
-            .catch(err => res.status(500).send(err));
+    const getById = async (req, res) => {
+        let token = req.headers.authorization;
+        token = token.replace("Bearer ", "");
+        var decoded = jwt.decode(token, authSecret);
+
+        let sensor = await  app.db('sensores')
+            .select('id')
+            .where({id: req.params.id, usuarioId: decoded.id }).first(); 
+           
+        //checa se id pertence ao usuario
+        if(sensor){
+            app.db('dadosensor')
+                .select('sinalQueda','created_At','sensorId')
+                .where({sensorId: req.params.id})
+                .then(dados => res.json(dados))    
+                .catch(err => res.status(500).send(err));
+        }else{
+            res.status(400).send("Id do sensor não encontrado")
+        }
 
     }
 

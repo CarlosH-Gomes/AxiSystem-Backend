@@ -10,14 +10,27 @@ module.exports = app => {
         let dados = { ...req.body };
         if(req.params.id) dados.id = req.params.id
         let token = req.headers.authorization;
-        token = token.replace("bearer ", "");
+        token = token.replace("Bearer ", "");
         var decoded = jwt.decode(token, authSecret);
 
-        if(dados.numCompartimento > 4) return res.status(500).send("Compatirmento inválido")
+
+        if(dados.numCompartimento > 4) return res.status(400).send("Compatirmento inválido")
+
+        try {
+            existsOrError(dados.mac, "Informe número mac");
+        } catch (msg) {
+            return res.status(400).send(msg);
+        }
+
+        const consultaMacExiste = await app.db('caixaMedicamentos')
+                                    .where({mac: dados.mac, usuarioId: decoded.id })
+                                    .first();
+
+        if(!consultaMacExiste) return res.status(400).send("MAC não cadastrado")
 
         if(dados.aindaToma == 1){
             const consulta = await app.db('medicamentos')
-                                        .where({usuarioId: decoded.id, aindaToma: 1, numCompartimento: dados.numCompartimento })
+                                        .where({mac: dados.mac, aindaToma: 1, numCompartimento: dados.numCompartimento })
                                         .first();                  
             
             if(consulta) return res.status(400).send("Compartimento em uso")
@@ -50,9 +63,7 @@ module.exports = app => {
                 return res.status(400).send(msg);
             }
 
-            dados = {
-                ...dados, usuarioId: decoded.id//grava as novas informações
-            }
+            
             app.db('medicamentos')
                 .insert(dados)
                 .then( _ => res.status(204).send()) //deu tudo certo
@@ -61,12 +72,10 @@ module.exports = app => {
     }
 
     const get = (req, res) => {
-        let token = req.headers.authorization;
-        token = token.replace("bearer ", "");
-        var decoded = jwt.decode(token, authSecret);
+       
 
         app.db('medicamentos')
-            .where({usuarioId: decoded.id, aindaToma: 1})
+            .where({mac: req.params.mac, aindaToma: 1})
             .then(dados => res.json(dados))
             .catch(err => res.status(500).send(err));
     }
@@ -81,17 +90,7 @@ module.exports = app => {
            .catch(err => res.status(500).send(err))
     }
 
-    const getByIdUser = (req, res) => {
-        let token = req.headers.authorization;
-        token = token.replace("bearer ", "");
-        var decoded = jwt.decode(token, authSecret);
 
-        app.db('medicamentos')
-            .where({usuarioId: decoded.id})
-            .then(dados => res.json(dados))
-            .catch(err => res.status(500).send(err));
-    }
-
-    return { save, get, getById, getByIdUser }
+    return { save, get, getById }
 
 }

@@ -1,0 +1,361 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API de axisystem",
+    "description": "API para controlar remédios e quedas de idosos.",
+    "version": "0.0.1",
+    "contact": {
+      "name": "Suporte a Devs",
+      "email": "contato@example.com",
+      "url": "https://mockapi.io"
+    }
+  },
+  "externalDocs": {
+    "description": "Documentação burocrática",
+    "url": "https://mockapi.io"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "API"
+    }
+  ],
+  "paths": {
+    "/signin": {
+      "post": {
+        "security": [],
+        "summary": "Criar novo usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/signin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados para autentificação do usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/signinDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "security": [],
+        "summary": "Criar novo usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/signup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario cadastrado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/signup"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuario ja cadastrado"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/sensor": {
+      "post": {
+        "summary": "Cadastrar equipamento",
+        "tags": [
+          "Sistema de queda"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sensor"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Equipamento cadastrado com sucesso"
+          },
+          "400": {
+            "description": "Equipamento ja cadastrado"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      },
+      "get": {
+        "summary": "Recupera todos os sensores do usuario",
+        "tags": [
+          "Sistema de queda"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/sensorDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sensor/{id}": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "summary": "Cadastrar equipamento",
+        "tags": [
+          "Sistema de queda"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sensor"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Equipamento cadastrado com sucesso"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/medicamentos": {
+      "get": {
+        "summary": "Recupera todas as especialidades",
+        "tags": [
+          "Todas especialidades"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "schemas": {
+      "signup": {
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "password",
+          "confirmPassword"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "email do usuario"
+          },
+          "name": {
+            "type": "string",
+            "description": "nome do usuario"
+          },
+          "password": {
+            "type": "string",
+            "description": "senha do usuario"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "confirma senha usuario"
+          }
+        },
+        "example": {
+          "email": "exemplo@exemplo",
+          "name": "exemplo",
+          "password": "senha",
+          "confirmPassword": "senha"
+        }
+      },
+      "signin": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "email do usuario"
+          },
+          "password": {
+            "type": "string",
+            "description": "senha do usuario"
+          }
+        },
+        "example": {
+          "email": "exemplo@exemplo",
+          "password": "senha"
+        }
+      },
+      "signinDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "iat",
+          "token"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "id do usuario"
+          },
+          "name": {
+            "type": "string",
+            "description": "nome do usuario"
+          },
+          "email": {
+            "type": "string",
+            "description": "email do usuario"
+          },
+          "iat": {
+            "type": "integer",
+            "description": "tempo de token do usuario"
+          },
+          "token": {
+            "type": "string",
+            "description": "token de autentificação jwt"
+          }
+        },
+        "example": {
+          "id": 1,
+          "name": "nome",
+          "email": "exemplo@exemplo",
+          "iat": "tempo",
+          "token": "token jwt"
+        }
+      },
+      "sensor": {
+        "type": "object",
+        "required": [
+          "mac"
+        ],
+        "properties": {
+          "mac": {
+            "type": "string",
+            "description": "mac do aparelho de queda"
+          }
+        },
+        "example": {
+          "mac": "00:1B:C9:4B:E3:57"
+        }
+      },
+      "sensorDto": {
+        "type": "object",
+        "required": [
+          "mac",
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true,
+            "description": "id do usuario"
+          },
+          "mac": {
+            "type": "string",
+            "description": "mac do aparelho de queda"
+          }
+        },
+        "example": {
+          "mac": "00:1B:C9:4B:E3:57",
+          "id": 1
+        }
+      },
+      "sensorAlterado": {
+        "type": "object",
+        "required": [
+          "mac",
+          "id"
+        ],
+        "properties": {
+          "mac": {
+            "type": "string",
+            "description": "mac do aparelho de queda"
+          }
+        },
+        "example": {
+          "mac": "00:1B:C9:4B:E3:57",
+          "id": 1
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Informe o seu token JWT"
+      }
+    }
+  }
+}
