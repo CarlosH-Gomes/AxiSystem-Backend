@@ -9,8 +9,8 @@ module.exports = app => {
     app.route('/forgotPassword')
         .post(app.api.user.forgetPassword)
     
-    app.route('/')
-        .get(app.api.api.routes);
+    //app.route('/')
+        //.get(app.api.api.routes);
     
     app.route('/downloadCaixaMedicamento')
         .get(app.api.atualizaEsp8266.arquivoCaixaMedicamento);

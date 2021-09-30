@@ -47,7 +47,7 @@ module.exports = app => {
             app.db('medicamentos')
                 .update(dados)
                 .where({id: dados.id})
-                .then( _ => res.status(204).send()) //deu tudo certo
+                .then( _ => res.status(200).send()) //deu tudo certo
                 .catch(err => res.status(500).send(err)) // erro do lado do servidor
         }else{
 
@@ -66,7 +66,7 @@ module.exports = app => {
             
             app.db('medicamentos')
                 .insert(dados)
-                .then( _ => res.status(204).send()) //deu tudo certo
+                .then( _ => res.status(201).send()) //deu tudo certo
                 .catch(err => res.status(500).send(err)) // erro do lado do servidor
         }
     }
