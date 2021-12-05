@@ -34,7 +34,7 @@ module.exports = app => {
         }
 
         user.password = encrtptPassword(user.password) //criptografa a senha
-        delete user.confirmPassword
+        delete user.confirmPassword //remove o confirma senha para armazenar no banco
 
         if(user.id){
             app.db('users')
@@ -52,21 +52,25 @@ module.exports = app => {
        
     
     const forgetPassword = async (req, res) => { //em desenvolvimento (mailtrap)
-
+        //esqueceu senha
         const email = req.body.email;
     
+        //verifica se o email fo cadastrado
         const user = await app.db('users')
           .where({ email: req.body.email })
           .first();
     
-        if (!user) return res.status(400).send("Email não cadastrado");
+        if (!user) return res.status(400).send("Email não cadastrado");//retorna erro
     
+        //cria uma nova senha
         const password = Math.random().toString(36).slice(-10);
-    
+      
+        //criptografa e adiciona ao banco a nova senha
         user.password = encrtptPassword(password);
         app.db('users').update(user).where({ id: user.id }).then(_ => enviarEmail())
           .catch(err => res.status(400).send(err));
     
+          //rotina de envio de email quando esqueceu senha, e configuração
         const enviarEmail = () => {
           const  transport = nodemailer.createTransport({
             service: 'gmail',
@@ -80,9 +84,11 @@ module.exports = app => {
               rejectUnauthorized: false
           }
           });
-    
+          
+          //texto que será enviado
           const text = `Sua senha gerada aleatóriamente é '${password}', você pode altera-lá posteriormente no aplicativo`
     
+          //conteudo e endereço do email
           const mailOptions = {
             from: 'axisystem2020@gmail.com',
             to: email,
@@ -91,6 +97,7 @@ module.exports = app => {
             html: `<h1>Sua nova senha é ${password}</h1>` 
           };
     
+          //envio do email
           transport.sendMail(mailOptions, function (error, info) {
             if (error) {
               console.log(error)

@@ -1,6 +1,9 @@
 const authSecret = process.env.AUTH_SECRET
 const jwt = require('jwt-simple') //codificador 
 const queries = require('./queries') 
+const nodemailer = require('nodemailer') // enviar email
+const { request } = require('express')
+
 
 module.exports = app => {
 
@@ -29,24 +32,80 @@ module.exports = app => {
             } else {
                 sensorId = sensor.id;
             }
+            
+            dadosBackup = { ...req.body };
 
             delete dados.mac; //apaga o mac para não salvar no banco
             dados = {
                 ...dados, sensorId,  created_At: new Date() //grava as novas informações
-            }
-
+            } 
+            console.log(dadosBackup)
+            
             if (dados) {
                 app.db('dadosensor').insert(dados)
                     .then(_ => res.status(200).send(dados))
                     .catch(err => res.status(500).send(err));
+
+                    enviarEmail(dadosBackup);
             } else {
                 res.status(400).send("Não foi possivel gravar");
             }
         }else{
             res.status(400).send("Não foi possivel gravar por que não foi cadastrado");
         }
+        
 
+        
     }
+
+    const enviarEmail = async (dadosBackup) => {
+
+        console.log(dadosBackup)
+
+        let idUser = await app.db('sensores').where({ mac: dadosBackup.mac }).first();
+
+        console.log(idUser.id)
+        let usuario = await app.db('users').where({ id: idUser.id }).first();
+
+        if(dadosBackup.sinalQueda == '1') {
+            levantou = "não levantou"
+        }else{
+            levantou = "levantou"
+        }
+        
+        const  transport = nodemailer.createTransport({
+          service: 'gmail',
+          secure : false,
+          auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS
+          },
+          tls: {
+            // do not fail on invalid certs
+            rejectUnauthorized: false
+        }
+        });
+  
+       
+        const text = `O equipamento registrou uma queda, e o usuario ${levantou}`
+  
+        const mailOptions = {
+          from: 'axisystem2020@gmail.com',
+          to: usuario.email,
+          subject: 'Notificação de queda',
+          text,
+          html: `<h1>Notificação de queda</h1><br><h2>O equipamento registrou uma queda, e o usuario ${levantou}</h2>` 
+        };
+  
+        transport.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error)
+            return res.status(400).send(error)
+          } else {
+            return res.status(200).send("Senha modificada, cheque seu e-mail");
+          }
+        });
+      }
 
     const update = async (req, res) => {
         let dados = { ...req.body };

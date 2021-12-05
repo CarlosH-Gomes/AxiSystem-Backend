@@ -1,7 +1,7 @@
 module.exports = app => {
 
     const routes = (req,res) => {
-
+        //uma breve documentação em html, mas o swagger é mais utilizado, só entra em cena quando o swagger cai
         const mensagem = `<h1>Rotas</h1>
         <h2>/signup</h2>
         <h3>POST</h3>

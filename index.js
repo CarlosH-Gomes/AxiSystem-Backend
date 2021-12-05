@@ -9,7 +9,7 @@ const { version } = require('moment');
 
 app.db = db
 
-app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
+app.use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
 consign()
     .include('./config/passport.js')

@@ -8,41 +8,41 @@ module.exports = app => {
     
 
     const save = async (req, res) => {
-        let dados = { ...req.body };
-        if(req.params.id) dados.id = req.params.id
-        let token = req.headers.authorization;
-        token = token.replace("Bearer ", "");
-        var decoded = jwt.decode(token, authSecret);
+        let dados = { ...req.body }; //dados do body da requisição
+        if(req.params.id) dados.id = req.params.id //verifica se foi informado id e armazena
+        let token = req.headers.authorization; // pega token do header para autentificação
+        token = token.replace("Bearer ", ""); //remove a palavra bearer
+        var decoded = jwt.decode(token, authSecret); //decodifica o token para pegar informaões do payload
 
         if(dados.id){
             
-            let sensor = await app.db('caixaMedicamentos').where({ mac: dados.mac }).first();
-            if(!sensor){
+            let sensor = await app.db('caixaMedicamentos').where({ mac: dados.mac }).first(); //consulta de caixa de medicamentos foi informada
+            if(!sensor){ //caso tenha dados da consulta se trata de um update
                 try {
-                    existsOrError(dados.mac, "Informe o MAC Adress");
+                    existsOrError(dados.mac, "Informe o MAC Adress"); //verifica se o mac foi informado
                 } catch (msg) {
-                    return res.status(400).send(msg);
+                    return res.status(400).send(msg);//retorna erro caso não for informado
                 }
                 dados = {
                     ...dados,  created_At: new Date() //grava as novas informações
                 }
-                app.db('caixaMedicamentos')
+                app.db('caixaMedicamentos') //altera os dados no banco
                     .update(dados)
                     .where({id: req.params.id})
                     .then( _ => res.status(204).send()) //deu tudo certo
                     .catch(err => res.status(500).send(err)) // erro do lado do servidor
             }else{
-                res.status(400).send("Sensor já foi cadastrado")
+                res.status(400).send("Sensor já foi cadastrado") //retorna erro quando o sensor já foi cadastrado
             }
 
         }else{ 
             try {
-                existsOrError(dados.mac, "Informe o MAC Adress");
+                existsOrError(dados.mac, "Informe o MAC Adress"); //valida se foi passado mac
             } catch (msg) {
                 return res.status(400).send(msg);
             }
 
-            let sensor = await app.db('caixaMedicamentos').where({ mac: dados.mac }).first();
+            let sensor = await app.db('caixaMedicamentos').where({ mac: dados.mac }).first(); //consulta informações do aparelho no banco
 
             
             dados = {
@@ -66,25 +66,25 @@ module.exports = app => {
         token = token.replace("Bearer ", "");
         var decoded = jwt.decode(token, authSecret);
       
-       app.db('caixaMedicamentos')
+       app.db('caixaMedicamentos') //consulta no banco pelo id do usuario
             .select('mac','id')
             .where({usuarioId: decoded.id})
            .then(sensor => res.json(sensor)) // deu certo, mando um json, se precisar de um processamento/tratamento, usar o map
            .catch(err => res.status(500).send(err))
     }
     
-    const getByMac = async (req, res) => {
+    const getByMac = async (req, res) => { //consulta no banco pelo MAC do usuario
         let token = req.headers.authorization;
         token = token.replace("Bearer ", "");
         var decoded = jwt.decode(token, authSecret);
       
-      var consultaId =  await app.db('caixaMedicamentos')
+      var consultaId =  await app.db('caixaMedicamentos') //consulta informações do aparelho no banco
                                     .select('mac','id')
                                     .where({usuarioId: decoded.id, id: req.params.id}).first()
         
-       if(!consultaId) return res.status(400).send('Sensor não encontrado!')
+       if(!consultaId) return res.status(400).send('Sensor não encontrado!') // retorna erro caso não encontre
 
-        app.db('medicamentos')
+        app.db('medicamentos') // retorna dados dos medicamentos tomados
             .where({mac: consultaId.mac})
            .then(sensor => res.json(sensor)) 
            .catch(err => res.status(500).send(err))
